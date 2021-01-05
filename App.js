@@ -1,19 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
-  View,
-  Text,
-  FlatList,
-  SafeAreaView
+  SafeAreaView,
+  View
 } from 'react-native';
-import { ListItem, Icon, BottomSheet } from 'react-native-elements';
+
+import BottomInfo from './components/BottomInfo'
+import List from './components/List'
+import ButtonFloating from './components/ButtonFloating'
 
 const data = [
   {
     name: 'personal',
     datePaid: null,
     mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
+    observation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc in est in eros pulvinar placerat id in ligula. Aenean fermentum, arcu vel varius rhoncus, libero nisl egestas est, sit amet condimentum tortor elit et risus. Donec quis lacinia velit, a ullamcorper tortor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
     id: 1
   },
   {
@@ -95,51 +96,40 @@ const data = [
   }
 ]
 const App = () => {
-  const COLOR_SUCCESS = '#27ae60'
-  const COLOR_WARNING = '#f39c12'
+  const [infoItem, setInfoItem] = useState('')
+  const [isBottomSheet, setIsBottomSheet] = useState(false)
 
-  const renderItem = ({ item }) => (
-    <ListItem bottomDivider>
-      <Icon
-        name={ item.datePaid ? 'check-circle' : 'exclamation-circle'}
-        color={item.datePaid ? COLOR_SUCCESS : COLOR_WARNING}
-        type='font-awesome'
-      />
-      <ListItem.Content>
-        <ListItem.Title>{item.name}</ListItem.Title>
-        <ListItem.Subtitle>{item.datePaid ? 'Pagado' : 'Impago'}</ListItem.Subtitle>
-        {item.datePaid ?
-          <ListItem.Subtitle>{item.datePaid}</ListItem.Subtitle>
-          : null
-        }
-      </ListItem.Content>
-    </ListItem>
-  )
+  const onTapItem = info => {
+    onSetInfo(info)
+    onOpenBottomSheet()
+  }
+
+  const onSetInfo = info => setInfoItem(info)
+
+  const onOpenBottomSheet = () => setIsBottomSheet(true)
+
+  const onCloseBottomSheet = () => setIsBottomSheet(false)
 
   return (
     <>
-      <View>
-        <Text>App</Text>
-
-        <FlatList
+      <SafeAreaView style={styles.container}>
+        <List
           data={data}
-          renderItem={renderItem}
-          keyExtractor={item => `${item.id}`}
+          onTapItem={onTapItem}
         />
-        <SafeAreaView>
-          <BottomSheet
-            isVisible={true}
-            containerStyle={{ backgroundColor: 'rgba(0.5, 0.25, 0, 0.2)' }}
-          >
-          </BottomSheet>
-        </SafeAreaView>
-      </View>
+        <BottomInfo
+          isBottomSheet={isBottomSheet}
+          infoItem={infoItem}
+          onCloseBottomSheet={onCloseBottomSheet}
+        />
+
+        <ButtonFloating/>
+    </SafeAreaView>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-
 });
 
 export default App;
