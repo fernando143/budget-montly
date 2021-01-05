@@ -1,114 +1,145 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
-  StatusBar,
+  FlatList,
+  SafeAreaView
 } from 'react-native';
+import { ListItem, Icon, BottomSheet } from 'react-native-elements';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const data = [
+  {
+    name: 'personal',
+    datePaid: null,
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 1
+  },
+  {
+    name: 'Internet',
+    datePaid: '03-01-2021',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 2
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 3
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 4
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 5
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 6
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 7
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 8
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 9
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 10
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 11
+  },
+  {
+    name: 'Seguro',
+    datePaid: '',
+    mount: '720,50',
+    observation: 'lorem ipsum dolor sit amet',
+    id: 12
+  }
+]
+const App = () => {
+  const COLOR_SUCCESS = '#27ae60'
+  const COLOR_WARNING = '#f39c12'
 
-const App: () => React$Node = () => {
+  const renderItem = ({ item }) => (
+    <ListItem bottomDivider>
+      <Icon
+        name={ item.datePaid ? 'check-circle' : 'exclamation-circle'}
+        color={item.datePaid ? COLOR_SUCCESS : COLOR_WARNING}
+        type='font-awesome'
+      />
+      <ListItem.Content>
+        <ListItem.Title>{item.name}</ListItem.Title>
+        <ListItem.Subtitle>{item.datePaid ? 'Pagado' : 'Impago'}</ListItem.Subtitle>
+        {item.datePaid ?
+          <ListItem.Subtitle>{item.datePaid}</ListItem.Subtitle>
+          : null
+        }
+      </ListItem.Content>
+    </ListItem>
+  )
+
   return (
     <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      <View>
+        <Text>App</Text>
+
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => `${item.id}`}
+        />
+        <SafeAreaView>
+          <BottomSheet
+            isVisible={true}
+            containerStyle={{ backgroundColor: 'rgba(0.5, 0.25, 0, 0.2)' }}
+          >
+          </BottomSheet>
+        </SafeAreaView>
+      </View>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
+
 });
 
 export default App;
