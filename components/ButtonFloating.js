@@ -1,16 +1,16 @@
 import React from 'react'
 import { StyleSheet, TouchableOpacity, Text} from 'react-native'
-import { Image, Icon } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 
-const ButtonFloating = () => {
+const ButtonFloating = ({color, onPress}) => {
   return (
     <TouchableOpacity
       activeOpacity={0.7}
-      onPress={() => console.log('onPress')}
+      onPress={onPress}
       style={styles.touchableOpacityStyle}>
         <Icon
           name='plus-circle'
-          color='#27ae60'
+          color={color ? color : '#27ae60'}
           type='font-awesome'
           size={50}
         />

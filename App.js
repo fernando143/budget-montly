@@ -5,9 +5,14 @@ import {
   View
 } from 'react-native';
 
+// CONSTANTS & HELPERS
+import { COLOR_ELECTRON_BLUE } from './constants'
+
+// COMPONENTS
 import BottomInfo from './components/BottomInfo'
 import List from './components/List'
 import ButtonFloating from './components/ButtonFloating'
+import AddItemForm from './components/AddItemForm'
 
 const data = [
   {
@@ -98,6 +103,7 @@ const data = [
 const App = () => {
   const [infoItem, setInfoItem] = useState('')
   const [isBottomSheet, setIsBottomSheet] = useState(false)
+  const [isAddItemForm, setIsAddItemForm] = useState(false)
 
   const onTapItem = info => {
     onSetInfo(info)
@@ -110,20 +116,29 @@ const App = () => {
 
   const onCloseBottomSheet = () => setIsBottomSheet(false)
 
+  const onAddItem = () => setIsAddItemForm(true)
+
   return (
     <>
       <SafeAreaView style={styles.container}>
-        <List
-          data={data}
-          onTapItem={onTapItem}
-        />
+        { isAddItemForm ?
+          <AddItemForm/>
+          :
+          <List
+            data={data}
+            onTapItem={onTapItem}
+          />
+        }
         <BottomInfo
           isBottomSheet={isBottomSheet}
           infoItem={infoItem}
           onCloseBottomSheet={onCloseBottomSheet}
         />
 
-        <ButtonFloating/>
+        <ButtonFloating
+          color={COLOR_ELECTRON_BLUE}
+          onPress={onAddItem}
+        />
     </SafeAreaView>
     </>
   );
