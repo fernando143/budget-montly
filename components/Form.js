@@ -5,6 +5,9 @@ import { Input, Text, Button, Icon } from 'react-native-elements'
 // CONSTANTS & HELPERS
 import { h4Styles, COLOR_AMERICAN_RIVER } from '../constants'
 
+// COMPONENTS
+import DateInput from './DateInput'
+
 const Form = ({title, onCancel, onSubmit}) => {
   const [valuesForm, setValuesForm] = useState({
     name: null,
@@ -17,6 +20,7 @@ const Form = ({title, onCancel, onSubmit}) => {
 
   const handleSubmit = () => {
     console.log('handleSubmit')
+
   }
 
   return (
@@ -34,11 +38,11 @@ const Form = ({title, onCancel, onSubmit}) => {
         leftIcon={{ type: 'font-awesome-5', name: 'file-invoice' }}
         onChangeText={value => onChange('name', value)}
       />
-      <Input
+      <DateInput
         label="Fecha de pago"
         placeholder="Ingrese la fecha de pago"
-        leftIcon={{ type: 'font-awesome', name: 'dollar' }}
-        onChangeText={value => onChange('datePaid', value)}
+        leftIcon={{ type: 'font-awesome-5', name: 'calendar-alt' }}
+        onChange={value => onChange('datePaid', value)}
       />
       <Input
         label="Importe"

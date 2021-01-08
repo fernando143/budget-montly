@@ -10,9 +10,11 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/datetimepicker": "^3.0.9",
     "react": "16.13.1",
     "react-native": "0.63.4",
     "react-native-elements": "^3.1.0",
+    "react-native-modal-datetime-picker": "^9.1.0",
     "react-native-safe-area-context": "^3.1.9",
     "react-native-safe-area-view": "^1.1.1",
     "react-native-vector-icons": "^7.1.0"
