@@ -2,10 +2,10 @@ import React from 'react'
 import { StyleSheet, View } from 'react-native'
 import { BottomSheet, Text, Button } from 'react-native-elements'
 
+// CONSTANTS & HELPERS
+import { h4Styles } from '../constants'
+
 const BottomInfo = ({isBottomSheet, infoItem, onCloseBottomSheet}) => {
-  const h4Styles = {
-    color: '#636e72'
-  }
 
   return (
     <BottomSheet

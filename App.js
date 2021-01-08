@@ -12,7 +12,7 @@ import { COLOR_ELECTRON_BLUE } from './constants'
 import BottomInfo from './components/BottomInfo'
 import List from './components/List'
 import ButtonFloating from './components/ButtonFloating'
-import AddItemForm from './components/AddItemForm'
+import Form from './components/Form'
 
 const data = [
   {
@@ -118,27 +118,39 @@ const App = () => {
 
   const onAddItem = () => setIsAddItemForm(true)
 
+  const onSubmit = values => console.log(values)
+
+  const onCancel = () => setIsAddItemForm(false)
+
   return (
     <>
       <SafeAreaView style={styles.container}>
         { isAddItemForm ?
-          <AddItemForm/>
-          :
-          <List
-            data={data}
-            onTapItem={onTapItem}
+          <Form
+            title="Agregar item"
+            onCancel={onCancel}
+            onSubmit={values => onSubmit(values)}
           />
+          :
+          (
+            <>
+              <List
+                data={data}
+                onTapItem={onTapItem}
+              />
+              <BottomInfo
+                isBottomSheet={isBottomSheet}
+                infoItem={infoItem}
+                onCloseBottomSheet={onCloseBottomSheet}
+              />
+              <ButtonFloating
+                color={COLOR_ELECTRON_BLUE}
+                onPress={onAddItem}
+              />
+            </>
+          )
         }
-        <BottomInfo
-          isBottomSheet={isBottomSheet}
-          infoItem={infoItem}
-          onCloseBottomSheet={onCloseBottomSheet}
-        />
 
-        <ButtonFloating
-          color={COLOR_ELECTRON_BLUE}
-          onPress={onAddItem}
-        />
     </SafeAreaView>
     </>
   );
