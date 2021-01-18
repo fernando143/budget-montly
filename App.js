@@ -4,6 +4,7 @@ import {
   SafeAreaView,
   View
 } from 'react-native';
+import codePush from "react-native-code-push"
 
 // CONSTANTS & HELPERS
 import { COLOR_ELECTRON_BLUE } from './constants'
@@ -101,6 +102,16 @@ const data = [
   }
 ]
 const App = () => {
+  let codePushOptions = {
+    checkFrequency: codePush.CheckFrequency.ON_APP_RESUME
+  };
+
+  codePush.sync({
+    updateDialog: true,
+    installMode: codePush.InstallMode.IMMEDIATE
+  });
+
+
   const [infoItem, setInfoItem] = useState('')
   const [isBottomSheet, setIsBottomSheet] = useState(false)
   const [isAddItemForm, setIsAddItemForm] = useState(false)
@@ -159,4 +170,5 @@ const App = () => {
 const styles = StyleSheet.create({
 });
 
-export default App;
+// export default codePush(App);
+export default App
