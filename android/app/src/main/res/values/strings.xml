@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">budgetMonthly</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">EWceUD9AwZfgzeTv4zUjFVEQuwR_kUydnw-Zu</string>
 </resources>

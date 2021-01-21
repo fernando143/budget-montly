@@ -4,6 +4,8 @@ import {
   SafeAreaView,
   View
 } from 'react-native';
+import { Header } from 'react-native-elements'
+import codePush from "react-native-code-push"
 
 // CONSTANTS & HELPERS
 import { COLOR_ELECTRON_BLUE } from './constants'
@@ -13,6 +15,7 @@ import BottomInfo from './components/BottomInfo'
 import List from './components/List'
 import ButtonFloating from './components/ButtonFloating'
 import Form from './components/Form'
+import Version from './components/Version'
 
 const data = [
   {
@@ -101,6 +104,18 @@ const data = [
   }
 ]
 const App = () => {
+  let codePushOptions = {
+    checkFrequency: codePush.CheckFrequency.ON_APP_RESUME
+  };
+
+  codePush.sync({
+    updateDialog: true,
+    installMode: codePush.InstallMode.IMMEDIATE
+  });
+
+  const version = '0.3.0'
+
+
   const [infoItem, setInfoItem] = useState('')
   const [isBottomSheet, setIsBottomSheet] = useState(false)
   const [isAddItemForm, setIsAddItemForm] = useState(false)
@@ -125,6 +140,11 @@ const App = () => {
   return (
     <>
       <SafeAreaView style={styles.container}>
+        <Header
+          centerComponent={{ text: 'Presupuesto mensual', style: { color: '#fff' } }}
+          rightComponent={<Version version={version} />}
+        />
+
         { isAddItemForm ?
           <Form
             title="Agregar item"
@@ -159,4 +179,4 @@ const App = () => {
 const styles = StyleSheet.create({
 });
 
-export default App;
+export default codePush(App);
