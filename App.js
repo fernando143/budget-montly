@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import {
   StyleSheet,
-  SafeAreaView,
-  View
+  SafeAreaView
 } from 'react-native';
 import { Header } from 'react-native-elements'
 import codePush from "react-native-code-push"
+import Toast from 'react-native-toast-message';
 
 // CONSTANTS & HELPERS
 import { COLOR_ELECTRON_BLUE } from './constants'
@@ -113,12 +113,12 @@ const App = () => {
     installMode: codePush.InstallMode.IMMEDIATE
   });
 
-  const version = '0.3.0'
-
+  const version = '0.4.0'
 
   const [infoItem, setInfoItem] = useState('')
   const [isBottomSheet, setIsBottomSheet] = useState(false)
   const [isAddItemForm, setIsAddItemForm] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   const onTapItem = info => {
     onSetInfo(info)
@@ -133,7 +133,29 @@ const App = () => {
 
   const onAddItem = () => setIsAddItemForm(true)
 
-  const onSubmit = values => console.log(values)
+  const onSubmit = values => {
+    console.log(values)
+    setIsSaving(true)
+
+    setTimeout(() => {
+      setIsSaving(false)
+      if (false) {
+        setIsAddItemForm(false)
+        Toast.show({
+          topOffset: 70,
+          text1: 'GUARDADO!'
+        })
+      } else {
+        Toast.show({
+          topOffset: 70,
+          type: 'error',
+          text1: 'ERROR',
+          text2: 'Vuelva a intentarlo'
+        })
+      }
+    }, 1500);
+
+  }
 
   const onCancel = () => setIsAddItemForm(false)
 
@@ -148,6 +170,7 @@ const App = () => {
         { isAddItemForm ?
           <Form
             title="Agregar item"
+            isSaving={isSaving}
             onCancel={onCancel}
             onSubmit={values => onSubmit(values)}
           />
@@ -170,8 +193,8 @@ const App = () => {
             </>
           )
         }
-
-    </SafeAreaView>
+      </SafeAreaView>
+      <Toast ref={(ref) => Toast.setRef(ref)} />
     </>
   );
 };
