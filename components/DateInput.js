@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native'
 import { withTheme, Icon } from 'react-native-elements'
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 
-const DateInput = ({placeholder, label, leftIcon, theme, onChange}) => {
+const DateInput = ({value, placeholder, label, leftIcon, theme, onChange}) => {
   const styleLabel = {
     color: theme.colors.grey3,
     fontSize: 16,
@@ -13,7 +13,8 @@ const DateInput = ({placeholder, label, leftIcon, theme, onChange}) => {
 
   const stylePlaceholder = {
     color: theme.colors.grey3,
-    fontSize: 18
+    fontSize: 18,
+    width: '90%'
   }
 
   const styleContainer = {
@@ -30,9 +31,9 @@ const DateInput = ({placeholder, label, leftIcon, theme, onChange}) => {
   };
 
   const confirmarFecha = date => {
-    const opciones = { year: 'numeric', month: 'long', day: '2-digit' }
+    const dateParsed = date.toLocaleDateString('es-ES')
+    onChange(dateParsed)
 
-    onChange(date.toLocaleDateString('es-ES', opciones))
     hideDatePicker();
   };
 
@@ -48,7 +49,7 @@ const DateInput = ({placeholder, label, leftIcon, theme, onChange}) => {
         <TouchableWithoutFeedback
           onPress={showDatePicker}
         >
-          <Text style={stylePlaceholder}>{placeholder}</Text>
+          <Text style={stylePlaceholder}>{value ? value : placeholder}</Text>
         </TouchableWithoutFeedback>
       </View>
       <DateTimePickerModal

@@ -7,3 +7,5 @@ export const h4Styles = {
   marginBottom: 10,
   color: '#636e72'
 }
+
+export const WEB_CLIENT_ID = '716083953618-4qb0sh4kk18vdu0k6of6ggv817a2mhlc.apps.googleusercontent.com'

@@ -8,7 +8,7 @@ import { h4Styles, COLOR_AMERICAN_RIVER } from '../constants'
 // COMPONENTS
 import DateInput from './DateInput'
 
-const Form = ({title, onCancel, onSubmit}) => {
+const Form = ({isSaving, title, onCancel, onSubmit}) => {
   const [valuesForm, setValuesForm] = useState({
     name: null,
     datePaid: null,
@@ -20,6 +20,7 @@ const Form = ({title, onCancel, onSubmit}) => {
 
   const handleSubmit = () => {
     console.log('handleSubmit')
+    onSubmit(valuesForm)
 
   }
 
@@ -42,12 +43,14 @@ const Form = ({title, onCancel, onSubmit}) => {
         label="Fecha de pago"
         placeholder="Ingrese la fecha de pago"
         leftIcon={{ type: 'font-awesome-5', name: 'calendar-alt' }}
+        value={valuesForm.datePaid}
         onChange={value => onChange('datePaid', value)}
       />
       <Input
         label="Importe"
         placeholder="Ingrese el importe"
         leftIcon={{ type: 'font-awesome', name: 'dollar' }}
+        keyboardType="number-pad"
         onChangeText={value => onChange('mount', value)}
       />
       <Input
@@ -61,7 +64,7 @@ const Form = ({title, onCancel, onSubmit}) => {
       <View style={styles.btnContainerGuardar}>
         <Button
           title="Cancelar"
-          containerStyle={{marginRight: 10}}
+          containerStyle={styles.btnContainerStyle}
           buttonStyle={{backgroundColor: COLOR_AMERICAN_RIVER}}
           icon={
             <Icon
@@ -76,7 +79,8 @@ const Form = ({title, onCancel, onSubmit}) => {
         />
         <Button
           title="Guardar"
-          containerStyle={{marginRight: 10}}
+          loading={isSaving}
+          containerStyle={styles.btnContainerStyle}
           icon={
             <Icon
               name="save"
@@ -102,5 +106,9 @@ const styles = StyleSheet.create({
   btnContainerGuardar: {
     alignSelf: 'flex-end',
     flexDirection: 'row'
+  },
+  btnContainerStyle: {
+    marginRight: 10,
+    width: 100
   }
 })

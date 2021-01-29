@@ -1,6 +1,10 @@
 import React from 'react'
 import { StyleSheet, FlatList, View } from 'react-native'
+
+// LIBRARIES
 import { ListItem, Icon } from 'react-native-elements'
+
+// CONSTANTS & HELPERS
 import { COLOR_SUCCESS, COLOR_WARNING } from '../constants'
 
 const List = ({data, onTapItem}) => {
@@ -31,7 +35,7 @@ const List = ({data, onTapItem}) => {
       <FlatList
         data={data}
         renderItem={renderItem}
-        keyExtractor={item => `${item.id}`}
+        keyExtractor={item => `${item.timestamp}`}
       />
     </View>
   )

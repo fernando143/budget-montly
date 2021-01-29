@@ -1,182 +1,83 @@
-import React, { useState } from 'react';
-import {
-  StyleSheet,
-  SafeAreaView,
-  View
-} from 'react-native';
-import { Header } from 'react-native-elements'
-import codePush from "react-native-code-push"
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 
-// CONSTANTS & HELPERS
-import { COLOR_ELECTRON_BLUE } from './constants'
+// LIBRARIES
+import codePush from "react-native-code-push"
+import Toast from 'react-native-toast-message';
+import auth from '@react-native-firebase/auth';
 
 // COMPONENTS
-import BottomInfo from './components/BottomInfo'
-import List from './components/List'
-import ButtonFloating from './components/ButtonFloating'
-import Form from './components/Form'
-import Version from './components/Version'
+import Login from './components/Login'
+import Dashboard from './components/Dashboard'
+import Spinner from './components/Spinner'
 
-const data = [
-  {
-    name: 'personal',
-    datePaid: null,
-    mount: '720,50',
-    observation: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc in est in eros pulvinar placerat id in ligula. Aenean fermentum, arcu vel varius rhoncus, libero nisl egestas est, sit amet condimentum tortor elit et risus. Donec quis lacinia velit, a ullamcorper tortor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.',
-    id: 1
-  },
-  {
-    name: 'Internet',
-    datePaid: '03-01-2021',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 2
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 3
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 4
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 5
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 6
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 7
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 8
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 9
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 10
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 11
-  },
-  {
-    name: 'Seguro',
-    datePaid: '',
-    mount: '720,50',
-    observation: 'lorem ipsum dolor sit amet',
-    id: 12
+const codePushOptions = {
+  checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
+  updateDialog: {
+    title: 'Actualización disponible',
+    mandatoryUpdateMessage: 'Es necesario actualizar para continuar.',
+    mandatoryContinueButtonLabel: 'Actualizar'
   }
-]
+};
+
 const App = () => {
-  let codePushOptions = {
-    checkFrequency: codePush.CheckFrequency.ON_APP_RESUME
-  };
 
   codePush.sync({
     updateDialog: true,
     installMode: codePush.InstallMode.IMMEDIATE
   });
 
-  const version = '0.3.0'
+  const [user, setUser] = useState(false)
+  const [statusUser, setStatusUser] = useState('fetching') // fetching || done
 
 
-  const [infoItem, setInfoItem] = useState('')
-  const [isBottomSheet, setIsBottomSheet] = useState(false)
-  const [isAddItemForm, setIsAddItemForm] = useState(false)
+  useEffect(() => {
+    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
+    return subscriber
+  }, [])
 
-  const onTapItem = info => {
-    onSetInfo(info)
-    onOpenBottomSheet()
+
+  const onAuthStateChanged = user => {
+    setUser(user);
+    setStatusUser('done')
   }
 
-  const onSetInfo = info => setInfoItem(info)
+  const onLogout = () => {
+    auth()
+    .signOut()
+    .then(() => console.log('User signed out!'));
+  }
 
-  const onOpenBottomSheet = () => setIsBottomSheet(true)
+  switch (true) {
+    case statusUser === 'fetching':
+      return (<Spinner/>)
 
-  const onCloseBottomSheet = () => setIsBottomSheet(false)
+    case statusUser === 'done' && !user:
+      return (
+        <>
+          <Login />
+          <Toast ref={(ref) => Toast.setRef(ref)} />
+        </>
+      )
 
-  const onAddItem = () => setIsAddItemForm(true)
+    case statusUser === 'done' && user?._user.email.length > 0:
+      return (
+        <>
+          <Dashboard user={user} onLogout={onLogout} />
+          <Toast ref={(ref) => Toast.setRef(ref)} />
+        </>
+      )
 
-  const onSubmit = values => console.log(values)
-
-  const onCancel = () => setIsAddItemForm(false)
-
-  return (
-    <>
-      <SafeAreaView style={styles.container}>
-        <Header
-          centerComponent={{ text: 'Presupuesto mensual', style: { color: '#fff' } }}
-          rightComponent={<Version version={version} />}
-        />
-
-        { isAddItemForm ?
-          <Form
-            title="Agregar item"
-            onCancel={onCancel}
-            onSubmit={values => onSubmit(values)}
-          />
-          :
-          (
-            <>
-              <List
-                data={data}
-                onTapItem={onTapItem}
-              />
-              <BottomInfo
-                isBottomSheet={isBottomSheet}
-                infoItem={infoItem}
-                onCloseBottomSheet={onCloseBottomSheet}
-              />
-              <ButtonFloating
-                color={COLOR_ELECTRON_BLUE}
-                onPress={onAddItem}
-              />
-            </>
-          )
-        }
-
-    </SafeAreaView>
-    </>
-  );
+    default:
+      return (
+        <View>
+          <Text>Ha ocurrido un error inesperado?...</Text>
+        </View>
+      )
+  }
 };
 
 const styles = StyleSheet.create({
 });
 
-export default codePush(App);
+export default codePush(codePushOptions)(App);
