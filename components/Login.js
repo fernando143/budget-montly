@@ -22,7 +22,9 @@ GoogleSignin.configure({
 
 const Login = () => {
   const [isSigninInProgress, setIsSigningInProgress] = useState(false)
+  const [currentStep, setCurrentStep] = useState('')
 
+  const steps = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
   const handleError = error => {
     Toast.show({
       topOffset: 70,
@@ -35,8 +37,11 @@ const Login = () => {
   }
 
   const logIn = () => new Promise(async (resolve, reject) => {
+    setCurrentStep(steps[1])
     const { idToken } = await GoogleSignin.signIn()
+    setCurrentStep(steps[2])
     const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+    setCurrentStep(steps[3])
 
     auth().signInWithCredential(googleCredential)
     .then(({ user }) => resolve({status: 'OK', ...user}))
@@ -48,9 +53,10 @@ const Login = () => {
   })
 
   const getDocUser = user => new Promise(async (resolve, reject) => {
+    setCurrentStep(steps[6])
     const { _user: { uid } } = user
     const userDoc = await firestore().collection('users').doc(uid).get()
-
+    setCurrentStep(steps[7])
     resolve(userDoc)
   })
 
@@ -64,19 +70,25 @@ const Login = () => {
   })
 
   const onGoogleButtonPress = async () => {
+    setCurrentStep(steps[0])
     setIsSigningInProgress(true)
 
     const user = await logIn()
-
+    setCurrentStep(steps[4])
     if(user.status === 'OK') {
+      setCurrentStep(steps[5])
       const { _user: { uid, displayName, photoURL } } = user
       const docUser = await getDocUser(user)
-
+      setCurrentStep(steps[8])
       if(!docUser.exists) {
+        setCurrentStep(steps[9])
         await createDocUser(uid, displayName, photoURL)
+        setCurrentStep(steps[10])
       }
+      setCurrentStep(steps[11])
     }
 
+    setCurrentStep(steps[12])
     setIsSigningInProgress(false)
   }
 
@@ -96,6 +108,7 @@ const Login = () => {
         onPress={onGoogleButtonPress}
         disabled={isSigninInProgress}
       />
+      <Text>{currentStep}</Text>
     </View>
   )
 }
