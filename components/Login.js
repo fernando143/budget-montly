@@ -10,6 +10,7 @@ import {
 } from '@react-native-community/google-signin';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import Toast from 'react-native-toast-message';
 
 // CONSTANTS & HELPERS
 import { h4Styles, WEB_CLIENT_ID } from '../constants'
@@ -18,9 +19,20 @@ GoogleSignin.configure({
   webClientId: WEB_CLIENT_ID
 });
 
+
 const Login = () => {
   const [isSigninInProgress, setIsSigningInProgress] = useState(false)
 
+  const handleError = error => {
+    Toast.show({
+      topOffset: 70,
+      type: 'error',
+      text1: 'ERROR',
+      text2: `${error.code} ${error.message}`
+    })
+
+    setIsSigningInProgress(false)
+  }
 
   const logIn = () => new Promise(async (resolve, reject) => {
     const { idToken } = await GoogleSignin.signIn()
@@ -28,7 +40,11 @@ const Login = () => {
 
     auth().signInWithCredential(googleCredential)
     .then(({ user }) => resolve({status: 'OK', ...user}))
-    .catch(error => reject(error))
+    .catch(error => {
+      const { code, message } = error
+      handleError({code, message})
+      reject(error)
+    })
   })
 
   const getDocUser = user => new Promise(async (resolve, reject) => {
@@ -51,13 +67,13 @@ const Login = () => {
     setIsSigningInProgress(true)
 
     const user = await logIn()
-    const { _user: { uid, displayName, photoURL } } = user
 
     if(user.status === 'OK') {
+      const { _user: { uid, displayName, photoURL } } = user
       const docUser = await getDocUser(user)
 
       if(!docUser.exists) {
-        const statusDocUser = await createDocUser(uid, displayName, photoURL)
+        await createDocUser(uid, displayName, photoURL)
       }
     }
 
