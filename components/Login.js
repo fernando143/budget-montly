@@ -24,7 +24,7 @@ const Login = () => {
   const [isSigninInProgress, setIsSigningInProgress] = useState(false)
   const [currentStep, setCurrentStep] = useState('')
 
-  const steps = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+  const steps = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13']
   const handleError = error => {
     Toast.show({
       topOffset: 70,
@@ -38,25 +38,38 @@ const Login = () => {
 
   const logIn = () => new Promise(async (resolve, reject) => {
     setCurrentStep(steps[1])
-    const { idToken } = await GoogleSignin.signIn()
-    setCurrentStep(steps[2])
-    const googleCredential = auth.GoogleAuthProvider.credential(idToken);
-    setCurrentStep(steps[3])
+    // const { idToken } = await GoogleSignin.signIn()d
+    let idToken = ''
 
-    auth().signInWithCredential(googleCredential)
-    .then(({ user }) => resolve({status: 'OK', ...user}))
+    GoogleSignin.signIn()
+    .then(data => {
+      idToken = data.idToken
+      console.log(data)
+      setCurrentStep(steps[2])
+
+      const googleCredential = auth.GoogleAuthProvider.credential(idToken);
+      setCurrentStep(steps[3])
+
+      auth().signInWithCredential(googleCredential)
+        .then(({ user }) => resolve({ status: 'OK', ...user }))
+        .catch(error => {
+          const { code, message } = error
+          handleError({ code, message })
+          reject(error)
+        })
+
+    })
     .catch(error => {
-      const { code, message } = error
-      handleError({code, message})
-      reject(error)
+      setCurrentStep(steps[4])
+      console.log(error)
     })
   })
 
   const getDocUser = user => new Promise(async (resolve, reject) => {
-    setCurrentStep(steps[6])
+    setCurrentStep(steps[7])
     const { _user: { uid } } = user
     const userDoc = await firestore().collection('users').doc(uid).get()
-    setCurrentStep(steps[7])
+    setCurrentStep(steps[8])
     resolve(userDoc)
   })
 
@@ -74,21 +87,21 @@ const Login = () => {
     setIsSigningInProgress(true)
 
     const user = await logIn()
-    setCurrentStep(steps[4])
+    setCurrentStep(steps[5])
     if(user.status === 'OK') {
-      setCurrentStep(steps[5])
+      setCurrentStep(steps[6])
       const { _user: { uid, displayName, photoURL } } = user
       const docUser = await getDocUser(user)
-      setCurrentStep(steps[8])
+      setCurrentStep(steps[9])
       if(!docUser.exists) {
-        setCurrentStep(steps[9])
-        await createDocUser(uid, displayName, photoURL)
         setCurrentStep(steps[10])
+        await createDocUser(uid, displayName, photoURL)
+        setCurrentStep(steps[11])
       }
-      setCurrentStep(steps[11])
+      setCurrentStep(steps[12])
     }
 
-    setCurrentStep(steps[12])
+    setCurrentStep(steps[13])
     setIsSigningInProgress(false)
   }
 
