@@ -61,7 +61,8 @@ const Login = () => {
     })
     .catch(error => {
       setCurrentStep(steps[4])
-      console.log(error)
+      const { code, message } = error
+      handleError({ code, message })
     })
   })
 
