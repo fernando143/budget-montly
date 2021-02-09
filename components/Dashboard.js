@@ -12,7 +12,7 @@ import { COLOR_ELECTRON_BLUE } from '../constants'
 
 // COMPONENTS
 import BottomInfo from './BottomInfo'
-import List from './List'
+import List from './List/List'
 import ButtonFloating from './ButtonFloating'
 import Form from './Form'
 import Version from './Version'
@@ -24,7 +24,12 @@ const Dashboard = ({user, onLogout}) => {
   const [infoItem, setInfoItem] = useState('')
   const [isBottomSheet, setIsBottomSheet] = useState(false)
   const [isAddItemForm, setIsAddItemForm] = useState(false)
+
+  const [isEditingItem, setIsEditingItem] = useState(false)
+  const [itemEdit, setItemEdit] = useState(null)
+
   const [isSaving, setIsSaving] = useState(false)
+
   const [data, setData] = useState([])
 
   useEffect(() => {
@@ -46,8 +51,9 @@ const Dashboard = ({user, onLogout}) => {
       .then(querySnapshot => {
         querySnapshot.forEach(doc => {
           const document = doc.data()
+          const docId = doc.id
 
-          resultado.push(doc.data())
+          resultado.push({...document, docId})
         })
 
         setData(resultado)
@@ -62,40 +68,82 @@ const Dashboard = ({user, onLogout}) => {
 
   const onAddItem = () => setIsAddItemForm(true)
 
+  const onEditItem = item => {
+    setIsEditingItem(true)
+    setItemEdit(item)
+  }
+
   const onSubmit = values => {
     setIsSaving(true)
 
-    const dataRef = firestore().collection('users').doc(uid).collection('data')
+    const updateItem = values => {
+      const docRef = firestore().collection('users').doc(uid).collection('data').doc(values.docId)
 
-    dataRef.add({
-      ...values,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-      setIsAddItemForm(false)
-      getData()
-      Toast.show({
-        topOffset: 70,
-        text1: 'GUARDADO!'
+      docRef.update({
+        ...values
       })
-    })
-    .catch(() => {
-      Toast.show({
-        topOffset: 70,
-        type: 'error',
-        text1: 'ERROR',
-        text2: 'Vuelva a intentarlo'
+        .then(() => {
+          setIsEditingItem(false)
+          setItemEdit(null)
+          getData()
+          Toast.show({
+            topOffset: 70,
+            text1: 'ACTUALIZADO!'
+          })
+        })
+        .catch(() => {
+          Toast.show({
+            topOffset: 70,
+            type: 'error',
+            text1: 'ERROR',
+            text2: 'Vuelva a intentarlo'
+          })
+        })
+        .finally(() => {
+          setIsSaving(false)
+        })
+    }
+
+    const addItem = values => {
+      const dataRef = firestore().collection('users').doc(uid).collection('data')
+
+      dataRef.add({
+        ...values,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
       })
+        .then(() => {
+          setIsAddItemForm(false)
+          getData()
+          Toast.show({
+            topOffset: 70,
+            text1: 'GUARDADO!'
+          })
+        })
+        .catch(() => {
+          Toast.show({
+            topOffset: 70,
+            type: 'error',
+            text1: 'ERROR',
+            text2: 'Vuelva a intentarlo'
+          })
+        })
+        .finally(() => {
+          setIsSaving(false)
+        })
+    }
 
-    })
-    .finally(() => {
-      setIsSaving(false)
-    })
-
-
+    if(isEditingItem) {
+      updateItem(values)
+    } else {
+      addItem(values)
+    }
   }
 
-  const onCancel = () => setIsAddItemForm(false)
+  const onCancel = () => {
+    setIsAddItemForm(false)
+    setIsEditingItem(false)
+    setItemEdit(null)
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,10 +152,11 @@ const Dashboard = ({user, onLogout}) => {
         rightComponent={<Version version={version} />}
       />
 
-      { isAddItemForm ?
+      { isAddItemForm || isEditingItem ?
         <Form
-          title="Agregar item"
+          title={ isAddItemForm ? "Agregar item" : "Editar item"}
           isSaving={isSaving}
+          data={itemEdit}
           onCancel={onCancel}
           onSubmit={values => onSubmit(values)}
         />
@@ -117,6 +166,7 @@ const Dashboard = ({user, onLogout}) => {
             <List
               data={data}
               onTapItem={onTapItem}
+              onEditItem={onEditItem}
             />
             <BottomInfo
               isBottomSheet={isBottomSheet}
