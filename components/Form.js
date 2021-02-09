@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Text, Button, Icon } from 'react-native-elements'
 
@@ -8,7 +8,7 @@ import { h4Styles, COLOR_AMERICAN_RIVER } from '../constants'
 // COMPONENTS
 import DateInput from './DateInput'
 
-const Form = ({isSaving, title, onCancel, onSubmit}) => {
+const Form = ({title, isSaving, data, onCancel, onSubmit}) => {
   const [valuesForm, setValuesForm] = useState({
     name: null,
     datePaid: null,
@@ -16,10 +16,15 @@ const Form = ({isSaving, title, onCancel, onSubmit}) => {
     observation: null
   })
 
+  useEffect(() => {
+    if(data !== null)
+      setValuesForm({...data})
+
+  }, [data])
+
   const onChange = (label, value) => setValuesForm({ ...valuesForm, [label]: value })
 
   const handleSubmit = () => {
-    console.log('handleSubmit')
     onSubmit(valuesForm)
 
   }
@@ -37,13 +42,14 @@ const Form = ({isSaving, title, onCancel, onSubmit}) => {
         label="Nombre"
         placeholder="Ingrese un nombre"
         leftIcon={{ type: 'font-awesome-5', name: 'file-invoice' }}
+        defaultValue={valuesForm.name ? valuesForm.name : null}
         onChangeText={value => onChange('name', value)}
       />
       <DateInput
         label="Fecha de pago"
         placeholder="Ingrese la fecha de pago"
         leftIcon={{ type: 'font-awesome-5', name: 'calendar-alt' }}
-        value={valuesForm.datePaid}
+        defaultValue={valuesForm.datePaid ? valuesForm.datePaid : null}
         onChange={value => onChange('datePaid', value)}
       />
       <Input
@@ -51,6 +57,7 @@ const Form = ({isSaving, title, onCancel, onSubmit}) => {
         placeholder="Ingrese el importe"
         leftIcon={{ type: 'font-awesome', name: 'dollar' }}
         keyboardType="number-pad"
+        defaultValue={valuesForm.mount ? valuesForm.mount : null}
         onChangeText={value => onChange('mount', value)}
       />
       <Input
@@ -58,6 +65,7 @@ const Form = ({isSaving, title, onCancel, onSubmit}) => {
         placeholder="Ingrese alguna observación (opcional)"
         leftIcon={{ type: 'font-awesome-5', name: 'comment-alt' }}
         multiline={true}
+        defaultValue={valuesForm.observation ? valuesForm.observation : null}
         onChangeText={value => onChange('observation', value)}
       />
 

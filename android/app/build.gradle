@@ -147,10 +147,10 @@ android {
         }
     }
     signingConfigs {
-        debug {
-            storeFile file('debug.keystore')
+        release {
+            storeFile file('android.keystore')
             storePassword 'android'
-            keyAlias 'androiddebugkey'
+            keyAlias 'android'
             keyPassword 'android'
         }
     }
