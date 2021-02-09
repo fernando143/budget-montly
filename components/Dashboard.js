@@ -18,7 +18,7 @@ import Form from './Form'
 import Version from './Version'
 
 const Dashboard = ({user, onLogout}) => {
-  const version = '0.4.1'
+  const version = '0.5.1'
   const { displayName, uid } = user._user
 
   const [infoItem, setInfoItem] = useState('')
