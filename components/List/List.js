@@ -4,9 +4,16 @@ import { StyleSheet, FlatList, View } from 'react-native'
 // COMPONENTS
 import Item from './Item'
 
-const List = ({data, onTapItem, onEditItem}) => {
+const List = ({data, onTapItem, onEditItem, onDeleteItem}) => {
 
-  const renderItem = ({ item }) => <Item item={item} onTapItem={onTapItem} onEditItem={onEditItem}/>
+  const renderItem = ({ item }) => (
+    <Item
+      item={item}
+      onTapItem={onTapItem}
+      onEditItem={onEditItem}
+      onDeleteItem={onDeleteItem}
+    />
+  )
 
   return (
     <View>

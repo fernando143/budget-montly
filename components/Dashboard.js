@@ -16,9 +16,10 @@ import List from './List/List'
 import ButtonFloating from './ButtonFloating'
 import Form from './Form'
 import Version from './Version'
+import Modal from './Modal'
 
 const Dashboard = ({user, onLogout}) => {
-  const version = '0.4.1'
+  const version = '0.6.1'
   const { displayName, uid } = user._user
 
   const [infoItem, setInfoItem] = useState('')
@@ -29,7 +30,10 @@ const Dashboard = ({user, onLogout}) => {
   const [itemEdit, setItemEdit] = useState(null)
 
   const [isSaving, setIsSaving] = useState(false)
+  const [isVisibleModalDelete, setIsVisibleModalDelete] = useState(false)
 
+  const [itemDelete, setItemDelete] = useState(null)
+  const [isDeletingItem, setIsDeletingItem] = useState(false)
   const [data, setData] = useState([])
 
   useEffect(() => {
@@ -71,6 +75,36 @@ const Dashboard = ({user, onLogout}) => {
   const onEditItem = item => {
     setIsEditingItem(true)
     setItemEdit(item)
+  }
+
+  const onDeleteItem = item => {
+    setItemDelete(item)
+    setIsVisibleModalDelete(true)
+  }
+
+  const onCancelDeleteItem = () => {
+    setItemDelete(null)
+    setIsVisibleModalDelete(false)
+  }
+
+  const onConfirmDeleteItem = itemDelete => {
+    console.log(itemDelete)
+    setIsDeletingItem(true)
+
+    const docRef = firestore().collection('users').doc(uid).collection('data').doc(itemDelete.docId)
+
+    docRef
+    .delete()
+    .then(() => {
+      getData()
+    }).catch(error => {
+      console.error("Error removing document: ", error);
+    })
+    .finally(() => {
+      setIsDeletingItem(false)
+      setItemDelete(null)
+      setIsVisibleModalDelete(false)
+    })
   }
 
   const onSubmit = values => {
@@ -167,6 +201,7 @@ const Dashboard = ({user, onLogout}) => {
               data={data}
               onTapItem={onTapItem}
               onEditItem={onEditItem}
+              onDeleteItem={onDeleteItem}
             />
             <BottomInfo
               isBottomSheet={isBottomSheet}
@@ -181,6 +216,12 @@ const Dashboard = ({user, onLogout}) => {
         )
       }
       <Button title="Salir" onPress={onLogout}/>
+      <Modal
+        isVisible={isVisibleModalDelete}
+        isLoading={isDeletingItem}
+        onCancel={onCancelDeleteItem}
+        onConfirm={() => onConfirmDeleteItem(itemDelete)}
+      />
     </SafeAreaView>
 
   )

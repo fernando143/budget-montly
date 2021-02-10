@@ -7,7 +7,10 @@ import { ListItem, Icon } from 'react-native-elements'
 // CONSTANTS & HELPERS
 import { COLOR_SUCCESS, COLOR_WARNING } from '../../constants'
 
-const Item = ({item, onTapItem, onEditItem}) => (
+// COMPONENTS
+import Actions from './Actions'
+
+const Item = ({item, onTapItem, onEditItem, onDeleteItem}) => (
   <ListItem
     bottomDivider
     onPress={() => onTapItem(item.observation)}
@@ -33,11 +36,10 @@ const Item = ({item, onTapItem, onEditItem}) => (
         <ListItem.Title>$ {item.mount}</ListItem.Title>
       </ListItem.Content>
 
-      <ListItem.Chevron
-        size={26}
-        type="font-awesome5"
-        name="edit"
-        onPress={() => onEditItem(item)}
+      <Actions
+        item={item}
+        onEditItem={onEditItem}
+        onDeleteItem={onDeleteItem}
       />
 
     </ListItem.Content>

@@ -32,6 +32,7 @@ const DateInput = ({ defaultValue, placeholder, label, leftIcon, theme, onChange
 
   const confirmarFecha = date => {
     const dateParsed = date.toLocaleDateString('es-ES')
+    console.log(dateParsed)
     onChange(dateParsed)
 
     hideDatePicker();
