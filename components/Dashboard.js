@@ -19,7 +19,11 @@ import Version from './Version'
 import Modal from './Modal'
 
 const Dashboard = ({user, onLogout}) => {
+<<<<<<< HEAD
   const version = '0.6.1'
+=======
+  const version = '0.5.1'
+>>>>>>> 0fad357d9a3cfd9e219718f00de82d6bafb2bcba
   const { displayName, uid } = user._user
 
   const [infoItem, setInfoItem] = useState('')
