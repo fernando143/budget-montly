@@ -7,10 +7,13 @@ import { h4Styles, COLOR_AMERICAN_RIVER } from '../constants'
 
 // COMPONENTS
 import DateInput from './DateInput'
+import GenericInput from './GenericInput'
+import MonthPicker from './MonthPicker'
 
 const Form = ({title, isSaving, data, onCancel, onSubmit}) => {
   const [valuesForm, setValuesForm] = useState({
     name: null,
+    month: null,
     datePaid: null,
     mount: null,
     observation: null
@@ -44,6 +47,24 @@ const Form = ({title, isSaving, data, onCancel, onSubmit}) => {
         leftIcon={{ type: 'font-awesome-5', name: 'file-invoice' }}
         defaultValue={valuesForm.name ? valuesForm.name : null}
         onChangeText={value => onChange('name', value)}
+      />
+      <GenericInput
+        label="Seleccione Mes"
+        leftIcon={{ type: 'font-awesome-5', name: 'calendar-alt' }}
+        children1={
+          <MonthPicker
+            defaultValue={valuesForm.month ? valuesForm.month : '01'}
+            onChangeText={value => onChange('month', value)}
+          />
+        }
+      />
+      <Input
+        label="Año"
+        placeholder="Ingrese el año"
+        leftIcon={{ type: 'font-awesome-5', name: 'calendar-alt' }}
+        keyboardType="number-pad"
+        defaultValue={valuesForm.year ? valuesForm.year : null}
+        onChangeText={value => onChange('year', value)}
       />
       <DateInput
         label="Fecha de pago"

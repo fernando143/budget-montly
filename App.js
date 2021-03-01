@@ -16,7 +16,11 @@ const codePushOptions = {
   updateDialog: {
     title: 'Actualización disponible',
     mandatoryUpdateMessage: 'Es necesario actualizar para continuar.',
-    mandatoryContinueButtonLabel: 'Actualizar'
+    mandatoryContinueButtonLabel: 'Actualizar',
+    updateTitle: 'Actualización disponible',
+    optionalUpdateMessage: 'Es necesario actualizar para continuar.',
+    optionalIgnoreButtonLabel: "Cancelar",
+    optionalInstallButtonLabel: 'Actualizar'
   }
 };
 
