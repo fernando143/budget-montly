@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { StyleSheet, Text, View, TouchableWithoutFeedback } from 'react-native'
 import { withTheme, Icon } from 'react-native-elements'
 import DateTimePickerModal from "react-native-modal-datetime-picker"
+import moment from 'moment'
 
 const DateInput = ({ defaultValue, placeholder, label, leftIcon, theme, onChange}) => {
   const styleLabel = {
@@ -31,10 +32,9 @@ const DateInput = ({ defaultValue, placeholder, label, leftIcon, theme, onChange
   };
 
   const confirmarFecha = date => {
-    const dateParsed = date.toLocaleDateString('es-ES')
-    console.log(dateParsed)
-    onChange(dateParsed)
+    const dateParsed = moment(date).format("DD-MM-YYYY")
 
+    onChange(dateParsed)
     hideDatePicker();
   };
 

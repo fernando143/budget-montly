@@ -16,7 +16,7 @@ const List = ({data, onTapItem, onEditItem, onDeleteItem}) => {
   )
 
   return (
-    <View>
+    <View style={{flex: 9}}>
       <FlatList
         data={data}
         renderItem={renderItem}
