@@ -22,9 +22,7 @@ import FilterIcon from './FilterIcon'
 import Select from './Select'
 
 const Dashboard = ({user, onLogout}) => {
-  const version = '0.7.3'
-  // CORRECCION DE BUGS: correccion 2 bugs, height lista y formato fecha en produccion
-  // FUNCIONALIDADES AGREGADAS: se agrego sorter para seleccionar año y mes para filtrar la lista, adicionalmente al cargar la lista, debe cargar filtrado en el año y mes actual
+  const version = '0.8.4'
 
   const { displayName, uid } = user._user
 

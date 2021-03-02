@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 // LIBRARIES
 import codePush from "react-native-code-push"
@@ -52,6 +52,8 @@ const App = () => {
     .then(() => console.log('User signed out!'));
   }
 
+  const hideKeyboard = () => Keyboard.dismiss()
+
   switch (true) {
     case statusUser === 'fetching':
       return (<Spinner/>)
@@ -67,7 +69,9 @@ const App = () => {
     case statusUser === 'done' && user?._user.email.length > 0:
       return (
         <>
-          <Dashboard user={user} onLogout={onLogout} />
+          <TouchableWithoutFeedback onPress={() => hideKeyboard()}>
+            <Dashboard user={user} onLogout={onLogout} />
+          </TouchableWithoutFeedback>
           <Toast ref={(ref) => Toast.setRef(ref)} />
         </>
       )
