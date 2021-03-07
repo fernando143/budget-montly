@@ -10,20 +10,29 @@ import DateInput from './DateInput'
 import GenericInput from './GenericInput'
 import MonthPicker from './MonthPicker'
 
-const Form = ({title, isSaving, data, onCancel, onSubmit}) => {
+const Form = ({currentDate, title, isSaving, data, onCancel, onSubmit}) => {
+  const { year: currentYear, month: currentMonth } = currentDate
   const [valuesForm, setValuesForm] = useState({
     name: null,
     month: null,
     datePaid: null,
     mount: null,
-    observation: null
+    observation: null,
+    month: null,
+    year: null
   })
 
   useEffect(() => {
-    if(data !== null)
-      setValuesForm({...data})
-
+    if(data !== null) {
+        initDataOnEdit(data)
+    } else {
+      initDataOnAdd(valuesForm, currentYear, currentMonth)
+    }
   }, [data])
+
+  const initDataOnEdit = data => setValuesForm({ ...data })
+
+  const initDataOnAdd = (valuesForm, currentYear, currentMonth) => setValuesForm({ ...valuesForm, year: currentYear, month: currentMonth })
 
   const onChange = (label, value) => setValuesForm({ ...valuesForm, [label]: value })
 
@@ -54,7 +63,7 @@ const Form = ({title, isSaving, data, onCancel, onSubmit}) => {
           leftIcon={{ type: 'font-awesome-5', name: 'calendar-alt' }}
           children1={
             <MonthPicker
-              defaultValue={valuesForm.month ? valuesForm.month : '01'}
+              defaultValue={valuesForm.month ? valuesForm.month : currentMonth}
               onChangeText={value => onChange('month', value)}
             />
           }
@@ -64,7 +73,7 @@ const Form = ({title, isSaving, data, onCancel, onSubmit}) => {
           placeholder="Ingrese el año"
           leftIcon={{ type: 'font-awesome-5', name: 'calendar-alt' }}
           keyboardType="number-pad"
-          defaultValue={valuesForm.year ? valuesForm.year : null}
+          defaultValue={valuesForm.year ? valuesForm.year : currentYear}
           onChangeText={value => onChange('year', value)}
         />
         <DateInput
