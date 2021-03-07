@@ -2,27 +2,26 @@ import React, { useState, useEffect } from 'react'
 import { StyleSheet, SafeAreaView, View } from 'react-native'
 
 // LIBRARIES
-import { Header, Button } from 'react-native-elements'
+import { Header } from 'react-native-elements'
 import firebase from '@react-native-firebase/app'
 import firestore from '@react-native-firebase/firestore';
 import Toast from 'react-native-toast-message';
-import moment from 'moment'
 
 // CONSTANTS & HELPERS
 import { COLOR_ELECTRON_BLUE } from '../constants'
+import { getDateNow, getData } from '../helpers'
 
 // COMPONENTS
 import BottomInfo from './BottomInfo'
 import List from './List/List'
 import ButtonFloating from './ButtonFloating'
 import Form from './Form'
-import Version from './Version'
+import RightButtons from './RightButtons'
 import Modal from './Modal'
-import FilterIcon from './FilterIcon'
 import Select from './Select'
 
 const Dashboard = ({user, onLogout}) => {
-  const version = '0.8.4'
+  const version = '0.9.4'
 
   const { displayName, uid } = user._user
 
@@ -39,53 +38,37 @@ const Dashboard = ({user, onLogout}) => {
   const [itemDelete, setItemDelete] = useState(null)
   const [isDeletingItem, setIsDeletingItem] = useState(false)
   const [data, setData] = useState([])
+  const [empty, setEmpty] = useState(null)
   const [currentDate, setCurrentDate] = useState({year: '', month: ''})
 
   useEffect(() => {
-    const { year, month } = getDateNow()
-    setCurrentDate({ year, month })
-    getData(year, month)
+    const loadData = async () => {
+      const { year, month } = getDateNow()
+      const { data, empty } = await getData(uid, year, month)
+
+      setCurrentDate({ year, month })
+      setData(data)
+      setEmpty(empty)
+    }
+
+    loadData()
   }, [])
 
 
-  const getDateNow = () => {
-    const date = new Date()
-    const dateMoment = moment(date, "DD-MM-YYYY")
-    const month = dateMoment.format('MM')
-    const year = dateMoment.format('YYYY')
+  const updateData = async (year, month) => {
+    setData([])
+    setEmpty(null)
 
-    return { year, month }
-  }
+    const { data, empty } = await getData(uid, year, month)
 
-  const updateDate = (year, month) => {
+    setData(data)
+    setEmpty(empty)
     setCurrentDate({year, month})
-    getData(year, month)
   }
 
   const onTapItem = info => {
     onSetInfo(info)
     onOpenBottomSheet()
-  }
-
-  const getData = (year, month) => {
-    let resultado = []
-
-    firestore()
-      .collection(`users/${uid}/data`)
-      .where('year', "==", year)
-      .where('month', "==", month)
-      .orderBy('timestamp', 'asc')
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          const document = doc.data()
-          const docId = doc.id
-
-          resultado.push({...document, docId})
-        })
-
-        setData(resultado)
-      })
   }
 
   const onSetInfo = info => setInfoItem(info)
@@ -112,15 +95,17 @@ const Dashboard = ({user, onLogout}) => {
   }
 
   const onConfirmDeleteItem = itemDelete => {
-    console.log(itemDelete)
     setIsDeletingItem(true)
 
     const docRef = firestore().collection('users').doc(uid).collection('data').doc(itemDelete.docId)
 
     docRef
     .delete()
-    .then(() => {
-      getData(currentDate.year, currentDate.month)
+    .then(async () => {
+      const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+
+      setData(data)
+      setEmpty(empty)
     }).catch(error => {
       console.error("Error removing document: ", error);
     })
@@ -140,10 +125,13 @@ const Dashboard = ({user, onLogout}) => {
       docRef.update({
         ...values
       })
-        .then(() => {
+        .then(async () => {
           setIsEditingItem(false)
           setItemEdit(null)
-          getData(currentDate.year, currentDate.month)
+          const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+
+          setEmpty(empty)
+          setData(data)
           Toast.show({
             topOffset: 70,
             text1: 'ACTUALIZADO!'
@@ -171,9 +159,14 @@ const Dashboard = ({user, onLogout}) => {
         ...values,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
       })
-        .then(() => {
+        .then(async () => {
           setIsAddItemForm(false)
-          getData(currentDate.year, currentDate.month)
+          setEmpty(null)
+          setData([])
+          const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+
+          setEmpty(empty)
+          setData(data)
           Toast.show({
             topOffset: 70,
             text1: 'GUARDADO!'
@@ -213,12 +206,13 @@ const Dashboard = ({user, onLogout}) => {
         <Header
           // leftComponent={<FilterIcon/>}
           centerComponent={{ text: 'Presupuesto mensual', style: { flex: 1, color: '#fff' } }}
-          rightComponent={<Version version={version} />}
+          rightComponent={<RightButtons version={version} onLogout={onLogout}/>}
         />
 
 
         { isAddItemForm || isEditingItem ?
           <Form
+            currentDate={currentDate}
             title={ isAddItemForm ? "Agregar item" : "Editar item"}
             isSaving={isSaving}
             data={itemEdit}
@@ -228,9 +222,10 @@ const Dashboard = ({user, onLogout}) => {
           :
           (
             <>
-              <Select currentDate={currentDate} onUpdateDate={updateDate}/>
+              <Select currentDate={currentDate} onUpdateDate={updateData}/>
               <List
                 data={data}
+                empty={empty}
                 onTapItem={onTapItem}
                 onEditItem={onEditItem}
                 onDeleteItem={onDeleteItem}
@@ -247,7 +242,7 @@ const Dashboard = ({user, onLogout}) => {
             </>
           )
         }
-        {/* <Button title="Salir" onPress={onLogout}/> */}
+
         <Modal
           isVisible={isVisibleModalDelete}
           isLoading={isDeletingItem}
