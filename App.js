@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import 'react-native-gesture-handler';
+import React from 'react';
+
 
 // LIBRARIES
+import { enableScreens } from 'react-native-screens';
 import codePush from "react-native-code-push"
-import Toast from 'react-native-toast-message';
-import auth from '@react-native-firebase/auth';
+
 
 // COMPONENTS
-import Login from './components/Login'
-import Dashboard from './components/Dashboard'
-import Spinner from './components/Spinner'
+import BudgetMonthlyApp from './BudgetMonthlyApp'
+
+// CONTEXTS
+import AuthUserProvider from './context/authUser'
 
 const codePushOptions = {
   checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
@@ -24,6 +26,8 @@ const codePushOptions = {
   }
 };
 
+enableScreens();
+
 const App = () => {
 
   codePush.sync({
@@ -31,61 +35,12 @@ const App = () => {
     installMode: codePush.InstallMode.IMMEDIATE
   });
 
-  const [user, setUser] = useState(false)
-  const [statusUser, setStatusUser] = useState('fetching') // fetching || done
+  return (
+    <AuthUserProvider>
+      <BudgetMonthlyApp/>
+    </AuthUserProvider>
+  )
 
-
-  useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber
-  }, [])
-
-
-  const onAuthStateChanged = user => {
-    setUser(user);
-    setStatusUser('done')
-  }
-
-  const onLogout = () => {
-    auth()
-    .signOut()
-    .then(() => console.log('User signed out!'));
-  }
-
-  const hideKeyboard = () => Keyboard.dismiss()
-
-  switch (true) {
-    case statusUser === 'fetching':
-      return (<Spinner/>)
-
-    case statusUser === 'done' && !user:
-      return (
-        <>
-          <Login />
-          <Toast ref={(ref) => Toast.setRef(ref)} />
-        </>
-      )
-
-    case statusUser === 'done' && user?._user.email.length > 0:
-      return (
-        <>
-          <TouchableWithoutFeedback onPress={() => hideKeyboard()}>
-            <Dashboard user={user} onLogout={onLogout} />
-          </TouchableWithoutFeedback>
-          <Toast ref={(ref) => Toast.setRef(ref)} />
-        </>
-      )
-
-    default:
-      return (
-        <View>
-          <Text>Ha ocurrido un error inesperado?...</Text>
-        </View>
-      )
-  }
 };
-
-const styles = StyleSheet.create({
-});
 
 export default codePush(codePushOptions)(App);
