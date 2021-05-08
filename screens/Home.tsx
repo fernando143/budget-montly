@@ -31,7 +31,6 @@ const Home = () => {
     }
   } = context
 
-  console.log(context)
   const [infoItem, setInfoItem] = useState('')
   const [isBottomSheet, setIsBottomSheet] = useState(false)
   const [isAddItemForm, setIsAddItemForm] = useState(false)
@@ -46,14 +45,16 @@ const Home = () => {
   const [isDeletingItem, setIsDeletingItem] = useState(false)
   const [data, setData] = useState([])
   const [empty, setEmpty] = useState(null)
-  const [currentDate, setCurrentDate] = useState({year: '', month: ''})
+  const [initialDate, setInitialDate] = useState({year: '', month: ''})
+  const [newDate, setNewDate] = useState({year: null, month: null})
 
   useEffect(() => {
     const loadData = async () => {
+      console.log('loadData')
       const { year, month } = getDateNow()
       const { data, empty } = await getData(uid, year, month)
 
-      setCurrentDate({ year, month })
+      setInitialDate({ year, month })
       setData(data)
       setEmpty(empty)
     }
@@ -62,7 +63,11 @@ const Home = () => {
   }, [])
 
 
-  const updateData = async (year, month) => {
+  const updateData = async (year:string, month:string) => {
+    console.log('updateData')
+    // if(year === initialDate.year && month === initialDate.month)
+    //   return
+
     setData([])
     setEmpty(null)
 
@@ -70,7 +75,7 @@ const Home = () => {
 
     setData(data)
     setEmpty(empty)
-    setCurrentDate({year, month})
+    setNewDate({year, month})
   }
 
   const onTapItem = info => {
@@ -109,7 +114,9 @@ const Home = () => {
     docRef
     .delete()
     .then(async () => {
-      const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+      const year = newDate.year ? newDate.year : initialDate.year
+      const month = newDate.month ? newDate.month : initialDate.month
+      const { data, empty } = await getData(uid, year, month)
 
       setData(data)
       setEmpty(empty)
@@ -124,6 +131,8 @@ const Home = () => {
   }
 
   const onSubmit = values => {
+    const year = newDate.year ? newDate.year : initialDate.year
+    const month = newDate.month ? newDate.month : initialDate.month
     setIsSaving(true)
 
     const updateItem = values => {
@@ -135,7 +144,7 @@ const Home = () => {
         .then(async () => {
           setIsEditingItem(false)
           setItemEdit(null)
-          const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+          const { data, empty } = await getData(uid, year, month)
 
           setEmpty(empty)
           setData(data)
@@ -170,7 +179,7 @@ const Home = () => {
           setIsAddItemForm(false)
           setEmpty(null)
           setData([])
-          const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+          const { data, empty } = await getData(uid, year, month)
 
           setEmpty(empty)
           setData(data)
@@ -212,7 +221,7 @@ const Home = () => {
       <View style={styles.container}>
         { isAddItemForm || isEditingItem ?
           <Form
-            currentDate={currentDate}
+            currentDate={newDate.year && newDate.month ? newDate : initialDate}
             title={ isAddItemForm ? "Agregar item" : "Editar item"}
             isSaving={isSaving}
             data={itemEdit}
@@ -222,7 +231,7 @@ const Home = () => {
           :
           (
             <>
-              <Select currentDate={currentDate} onUpdateDate={updateData}/>
+              <Select initialDate={initialDate} onUpdateDate={updateData}/>
               <List
                 data={data}
                 empty={empty}
