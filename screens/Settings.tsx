@@ -99,14 +99,14 @@ const Settings = () => {
         <Text h4 style={h4Styles}>Egreso</Text>
         <Divider style={{ height: 1 }} />
 
-        <Text>{egreso} {unidad}</Text>
+        <Text style={styles.number}>{egreso} {unidad}</Text>
       </View>
 
       <View>
         <Text h4 style={h4Styles}>Restante</Text>
         <Divider style={{ height: 1 }} />
 
-        <Text>{restante ? restante : budget} {unidad}</Text>
+        <Text style={styles.number}>{restante ? restante : budget} {unidad}</Text>
       </View>
 
       <Overlay
@@ -133,4 +133,9 @@ const Settings = () => {
 
 export default Settings
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  number: {
+    marginLeft: 'auto',
+    fontSize: 18
+  }
+})
