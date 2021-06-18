@@ -10,6 +10,8 @@ export const getDateNow = () => {
   return { year, month }
 }
 
+export const calculateRestante = (budget:number, egreso:number) => budget - egreso
+
 export const getData = (uid, year, month, orderBy = { type: 'timestamp', order: 'asc' }) => new Promise((resolve, reject) => {
   let resultado = []
 

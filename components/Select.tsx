@@ -1,18 +1,29 @@
-import React from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { StyleSheet, View } from 'react-native'
 import { Picker } from '@react-native-picker/picker'
 import GenericInput from './GenericInput'
 
 type SelectProps = {
-  currentDate: {
+  initialDate: {
     year: string,
     month: string
   },
-  onUpdateDate: () => void
+  onUpdateDate: (internalYear:string, internalMonth:string) => void
 }
 
-const Select = ({ currentDate, onUpdateDate } : SelectProps) => {
-  const { year, month } = currentDate
+const Select = ({ initialDate, onUpdateDate } : SelectProps) => {
+  const { year, month } = initialDate
+
+  const [internalYear, setInternalYear] = useState('')
+  const [internalMonth, setInternalMonth] = useState('')
+
+  useEffect(() => {
+    if(internalYear.length && internalMonth.length) {
+      console.log('onUpdateDate')
+      onUpdateDate(internalYear, internalMonth)
+    }
+
+  }, [internalYear, internalMonth])
 
   return (
     <View style={{marginTop: 10, flexDirection:'row', justifyContent: 'center'}}>
@@ -22,9 +33,13 @@ const Select = ({ currentDate, onUpdateDate } : SelectProps) => {
         children1={
           <Picker
             style={{ height: 20, width: '100%' }}
-            selectedValue={month}
-            onValueChange={monthSelected => onUpdateDate(year, monthSelected)}
+            selectedValue={internalMonth.length ? internalMonth : month}
+            onValueChange={monthSelected => {
+              if(monthSelected !== 'month')
+                setInternalMonth(monthSelected)
+            }}
           >
+            <Picker.Item label="Mes" value="month" />
             <Picker.Item label="Enero" value="01" />
             <Picker.Item label="Febrero" value="02" />
             <Picker.Item label="Marzo" value="03" />
@@ -47,9 +62,13 @@ const Select = ({ currentDate, onUpdateDate } : SelectProps) => {
         children1={
           <Picker
             style={{ height: 20, width: '100%' }}
-            selectedValue={year}
-            onValueChange={yearSelected => onUpdateDate(yearSelected, month)}
+            selectedValue={internalYear.length ? internalYear : year}
+            onValueChange={yearSelected => {
+              if(yearSelected !== 'year')
+                setInternalYear(yearSelected)
+              }}
           >
+            <Picker.Item label="Año" value="year" />
             <Picker.Item label="2020" value="2020" />
             <Picker.Item label="2021" value="2021" />
           </Picker>

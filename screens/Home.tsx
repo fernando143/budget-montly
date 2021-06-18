@@ -9,18 +9,22 @@ import Toast from 'react-native-toast-message';
 // CONSTANTS & HELPERS
 import { COLOR_ELECTRON_BLUE } from '../constants'
 import { getDateNow, getData } from '../helpers'
+import { addItem } from '../services/api'
 
 // CONTEXT
 import { AuthUserContext } from '../context/authUser'
+import { DataUserContext } from '../context/dataUser'
 
 // COMPONENTS
 import BottomInfo from '../components/BottomInfo'
 import List from '../components/List/List'
 import ButtonFloating from '../components/ButtonFloating'
 import Form from '../components/Form'
-
 import Modal from '../components/Modal'
 import Select from '../components/Select'
+
+// API
+import { addEgreso, updateEgreso } from '../services/api'
 
 const Home = () => {
 
@@ -31,7 +35,8 @@ const Home = () => {
     }
   } = context
 
-  console.log(context)
+  const contextDataUser:any = useContext(DataUserContext)
+
   const [infoItem, setInfoItem] = useState('')
   const [isBottomSheet, setIsBottomSheet] = useState(false)
   const [isAddItemForm, setIsAddItemForm] = useState(false)
@@ -46,14 +51,16 @@ const Home = () => {
   const [isDeletingItem, setIsDeletingItem] = useState(false)
   const [data, setData] = useState([])
   const [empty, setEmpty] = useState(null)
-  const [currentDate, setCurrentDate] = useState({year: '', month: ''})
+  const [initialDate, setInitialDate] = useState({year: '', month: ''})
+  const [newDate, setNewDate] = useState({year: null, month: null})
 
   useEffect(() => {
+    console.log('useEffect Home')
     const loadData = async () => {
       const { year, month } = getDateNow()
       const { data, empty } = await getData(uid, year, month)
 
-      setCurrentDate({ year, month })
+      setInitialDate({ year, month })
       setData(data)
       setEmpty(empty)
     }
@@ -62,7 +69,10 @@ const Home = () => {
   }, [])
 
 
-  const updateData = async (year, month) => {
+  const updateData = async (year:string, month:string) => {
+    // if(year === initialDate.year && month === initialDate.month)
+    //   return
+
     setData([])
     setEmpty(null)
 
@@ -70,15 +80,15 @@ const Home = () => {
 
     setData(data)
     setEmpty(empty)
-    setCurrentDate({year, month})
+    setNewDate({year, month})
   }
 
-  const onTapItem = info => {
+  const onTapItem = (info:any) => {
     onSetInfo(info)
     onOpenBottomSheet()
   }
 
-  const onSetInfo = info => setInfoItem(info)
+  const onSetInfo = (info:any) => setInfoItem(info)
 
   const onOpenBottomSheet = () => setIsBottomSheet(true)
 
@@ -86,12 +96,12 @@ const Home = () => {
 
   const onAddItem = () => setIsAddItemForm(true)
 
-  const onEditItem = item => {
+  const onEditItem = (item:any) => {
     setIsEditingItem(true)
     setItemEdit(item)
   }
 
-  const onDeleteItem = item => {
+  const onDeleteItem = (item:any) => {
     setItemDelete(item)
     setIsVisibleModalDelete(true)
   }
@@ -101,7 +111,7 @@ const Home = () => {
     setIsVisibleModalDelete(false)
   }
 
-  const onConfirmDeleteItem = itemDelete => {
+  const onConfirmDeleteItem = (itemDelete:any) => {
     setIsDeletingItem(true)
 
     const docRef = firestore().collection('users').doc(uid).collection('data').doc(itemDelete.docId)
@@ -109,7 +119,9 @@ const Home = () => {
     docRef
     .delete()
     .then(async () => {
-      const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+      const year = newDate.year ? newDate.year : initialDate.year
+      const month = newDate.month ? newDate.month : initialDate.month
+      const { data, empty } = await getData(uid, year, month)
 
       setData(data)
       setEmpty(empty)
@@ -123,10 +135,12 @@ const Home = () => {
     })
   }
 
-  const onSubmit = values => {
+  const onSubmit = (values:any) => {
+    const year = newDate.year ? newDate.year : initialDate.year
+    const month = newDate.month ? newDate.month : initialDate.month
     setIsSaving(true)
 
-    const updateItem = values => {
+    const updateItem = (values:any) => {
       const docRef = firestore().collection('users').doc(uid).collection('data').doc(values.docId)
 
       docRef.update({
@@ -135,52 +149,25 @@ const Home = () => {
         .then(async () => {
           setIsEditingItem(false)
           setItemEdit(null)
-          const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
+          const { data, empty } = await getData(uid, year, month)
+
+          if(values.datePaid && values.mount) {
+            updateEgreso(parseInt(values.mount), {...contextDataUser.user, uid})
+            .then(() => console.log('actualizado correctamente'))
+            .catch((error) => {
+              console.log(error)
+            })
+          }
 
           setEmpty(empty)
           setData(data)
           Toast.show({
+            type: 'success',
             topOffset: 70,
             text1: 'ACTUALIZADO!'
           })
         })
         .catch((err) => {
-          console.log('error')
-          console.log(err)
-          Toast.show({
-            topOffset: 70,
-            type: 'error',
-            text1: 'ERROR',
-            text2: 'Vuelva a intentarlo'
-          })
-        })
-        .finally(() => {
-          setIsSaving(false)
-        })
-    }
-
-    const addItem = values => {
-      const dataRef = firestore().collection('users').doc(uid).collection('data')
-
-      dataRef.add({
-        ...values,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      })
-        .then(async () => {
-          setIsAddItemForm(false)
-          setEmpty(null)
-          setData([])
-          const { data, empty } = await getData(uid, currentDate.year, currentDate.month)
-
-          setEmpty(empty)
-          setData(data)
-          Toast.show({
-            topOffset: 70,
-            text1: 'GUARDADO!'
-          })
-        })
-        .catch((err) => {
-          console.log('error')
           console.log(err)
           Toast.show({
             topOffset: 70,
@@ -197,7 +184,41 @@ const Home = () => {
     if(isEditingItem) {
       updateItem(values)
     } else {
-      addItem(values)
+      addItem(values, uid)
+      .then(async () => {
+        setEmpty(null)
+        setData([])
+
+        if(values.datePaid && values.mount)
+          addEgreso(values.mount, uid, { year: values.year, month: values.month })
+          .then(data => console.log('añadido egreso'))
+          .catch(error => console.log(error))
+
+        const { data, empty } = await getData(uid, year, month)
+
+        setEmpty(empty)
+        setData(data)
+
+        Toast.show({
+          type: 'success',
+          topOffset: 70,
+          text1: 'GUARDADO!'
+        })
+
+        setIsAddItemForm(false)
+      })
+      .catch(err => {
+        console.log(err)
+        Toast.show({
+          type: 'error',
+          topOffset: 70,
+          text1: 'ERROR',
+          text2: 'Vuelva a intentarlo'
+        })
+      })
+      .finally(() => {
+        setIsSaving(false)
+      })
     }
   }
 
@@ -212,17 +233,17 @@ const Home = () => {
       <View style={styles.container}>
         { isAddItemForm || isEditingItem ?
           <Form
-            currentDate={currentDate}
+            currentDate={newDate.year && newDate.month ? newDate : initialDate}
             title={ isAddItemForm ? "Agregar item" : "Editar item"}
             isSaving={isSaving}
             data={itemEdit}
             onCancel={onCancel}
-            onSubmit={values => onSubmit(values)}
+            onSubmit={(values:any) => onSubmit(values)}
           />
           :
           (
             <>
-              <Select currentDate={currentDate} onUpdateDate={updateData}/>
+              <Select initialDate={initialDate} onUpdateDate={updateData}/>
               <List
                 data={data}
                 empty={empty}

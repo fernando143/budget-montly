@@ -3,7 +3,7 @@ import auth from '@react-native-firebase/auth';
 
 export const AuthUserContext = createContext()
 
-const AuthUserProvider = (props:Type) => {
+const AuthUserProvider = (props:any) => {
   const [user, setUser] = useState(false)
   const [statusUser, setStatusUser] = useState('fetching') // fetching || done
 

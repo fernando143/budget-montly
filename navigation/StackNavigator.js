@@ -12,6 +12,10 @@ import { COLOR_ELECTRON_BLUE } from '../constants'
 // CONTEXT
 import { AuthUserContext } from '../context/authUser'
 const version = '0.10.5'
+/*NOTAS DE LA VERSION
+0.10.6:
+fix un problema que hacia que entre en bucle el selector y la lista se recargue indefinidamente cuando el internet està lento
+*/
 const Stack = createStackNavigator();
 
 const ProfileStackNavigator = () => {

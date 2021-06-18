@@ -1,17 +1,16 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 
-
 // LIBRARIES
 import { enableScreens } from 'react-native-screens';
 import codePush from "react-native-code-push"
-
 
 // COMPONENTS
 import BudgetMonthlyApp from './BudgetMonthlyApp'
 
 // CONTEXTS
 import AuthUserProvider from './context/authUser'
+import DataUserProvider from './context/dataUser'
 
 const codePushOptions = {
   checkFrequency: codePush.CheckFrequency.ON_APP_RESUME,
@@ -37,7 +36,9 @@ const App = () => {
 
   return (
     <AuthUserProvider>
-      <BudgetMonthlyApp/>
+      <DataUserProvider>
+        <BudgetMonthlyApp/>
+      </DataUserProvider>
     </AuthUserProvider>
   )
 
