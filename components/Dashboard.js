@@ -21,7 +21,7 @@ import Modal from './Modal'
 import Select from './Select'
 
 const Dashboard = ({user, onLogout}) => {
-  const version = '0.10.4'
+  const version = '0.11.5'
 
   const { displayName, uid } = user._user
 
