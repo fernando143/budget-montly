@@ -24,7 +24,7 @@ import Modal from '../components/Modal'
 import Select from '../components/Select'
 
 // API
-import { addEgreso, updateEgreso } from '../services/api'
+import { updateItem, deleteItem, addEgreso, updateEgreso, deleteEgreso } from '../services/api'
 
 const Home = () => {
 
@@ -114,19 +114,20 @@ const Home = () => {
   const onConfirmDeleteItem = (itemDelete:any) => {
     setIsDeletingItem(true)
 
-    const docRef = firestore().collection('users').doc(uid).collection('data').doc(itemDelete.docId)
-
-    docRef
-    .delete()
+    deleteItem(uid, itemDelete.docId)
     .then(async () => {
       const year = newDate.year ? newDate.year : initialDate.year
       const month = newDate.month ? newDate.month : initialDate.month
       const { data, empty } = await getData(uid, year, month)
 
+      deleteEgreso(uid, itemDelete.docId)
+      .then(() => console.log('egreso eliminado'))
+      .catch(error => console.error("Error removing egreso: ", error))
+
       setData(data)
       setEmpty(empty)
     }).catch(error => {
-      console.error("Error removing document: ", error);
+      console.error("Error removing item: ", error);
     })
     .finally(() => {
       setIsDeletingItem(false)
@@ -140,59 +141,65 @@ const Home = () => {
     const month = newDate.month ? newDate.month : initialDate.month
     setIsSaving(true)
 
-    const updateItem = (values:any) => {
-      const docRef = firestore().collection('users').doc(uid).collection('data').doc(values.docId)
-
-      docRef.update({
-        ...values
-      })
-        .then(async () => {
-          setIsEditingItem(false)
-          setItemEdit(null)
-          const { data, empty } = await getData(uid, year, month)
-
-          if(values.datePaid && values.mount) {
-            updateEgreso(parseInt(values.mount), {...contextDataUser.user, uid})
-            .then(() => console.log('actualizado correctamente'))
-            .catch((error) => {
-              console.log(error)
-            })
-          }
-
-          setEmpty(empty)
-          setData(data)
-          Toast.show({
-            type: 'success',
-            topOffset: 70,
-            text1: 'ACTUALIZADO!'
-          })
-        })
-        .catch((err) => {
-          console.log(err)
-          Toast.show({
-            topOffset: 70,
-            type: 'error',
-            text1: 'ERROR',
-            text2: 'Vuelva a intentarlo'
-          })
-        })
-        .finally(() => {
-          setIsSaving(false)
-        })
-    }
-
     if(isEditingItem) {
-      updateItem(values)
+      updateItem(uid, values.docId, values)
+      .then(async () => {
+        setIsEditingItem(false)
+        setItemEdit(null)
+        const { data, empty } = await getData(uid, year, month)
+
+        const egresoValues = {
+          active: values.datePaid && values.mount ? true : false,
+          mount: values.mount,
+          year: values.year,
+          month: values.month
+        }
+
+        updateEgreso(uid, values.docId, egresoValues)
+        .then(() => console.log('egreso actualizado correctamente'))
+        .catch((error) => {
+          console.log(error)
+        })
+
+
+        setEmpty(empty)
+        setData(data)
+        Toast.show({
+          type: 'success',
+          topOffset: 70,
+          text1: 'ACTUALIZADO!'
+        })
+      })
+      .catch((err) => {
+        console.log(err)
+        Toast.show({
+          topOffset: 70,
+          type: 'error',
+          text1: 'ERROR',
+          text2: 'Vuelva a intentarlo'
+        })
+      })
+      .finally(() => {
+        setIsSaving(false)
+      })
     } else {
       addItem(values, uid)
-      .then(async () => {
+      .then(async (newItemAdded:any) => {
+        const { egresoId } = newItemAdded
+
         setEmpty(null)
         setData([])
 
-        if(values.datePaid && values.mount)
-          addEgreso(values.mount, uid, { year: values.year, month: values.month })
-          .then(data => console.log('añadido egreso'))
-          .catch(error => console.log(error))
+        const egresoValues = {
+          active: values.datePaid && values.mount ? true : false,
+          mount: values.mount,
+          year: values.year,
+          month: values.month
+        }
+
+        addEgreso(uid, egresoId, egresoValues)
+        .then(data => console.log('añadido egreso'))
+        .catch(error => console.log(error))
 
         const { data, empty } = await getData(uid, year, month)
 

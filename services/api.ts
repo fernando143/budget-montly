@@ -1,6 +1,8 @@
 import firebase from '@react-native-firebase/app'
 import firestore from '@react-native-firebase/firestore';
 
+// ADD, GET, UPDATE, DELETE
+
 export const addBudget = (
   budget:string,
   uid:string,
@@ -48,14 +50,11 @@ export const updateBudget = (budget:string, uid:string, docId:string) => {
   })
 }
 
-export const addEgreso = (egreso:string, uid:string, currentDate:{ year:string, month:string }) => {
-  const egresoRef = firestore().collection(`users/${uid}/egreso`)
-  const { year, month } = currentDate
+export const addEgreso = (uid:string, egresoId:string, egresoValues:object ) => {
+  const docEgresoRef = firestore().collection(`users/${uid}/egreso`).doc(egresoId)
 
-  return egresoRef.add({
-    egreso,
-    year,
-    month,
+  return docEgresoRef.set({
+    ...egresoValues,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   })
 }
@@ -66,6 +65,7 @@ export const getEgreso = (uid:string, currentDate: { year:string, month:string }
   firestore().collection(`users/${uid}/egreso`)
   .where('year', "==", year)
   .where('month', "==", month)
+  .where('active', "==", true)
   .get()
   .then(querySnapshot => {
     const { docs, empty } = querySnapshot
@@ -73,7 +73,7 @@ export const getEgreso = (uid:string, currentDate: { year:string, month:string }
     if(empty) {
       resolve({ egreso: 0 })
     } else {
-      const documents = docs.map(doc => doc.data().egreso)
+      const documents = docs.map(doc => doc.data().mount)
       const sum:number = documents.reduce((acc, current) => parseInt(acc) + parseInt(current), 0)
 
       resolve({ egreso: sum })
@@ -83,23 +83,44 @@ export const getEgreso = (uid:string, currentDate: { year:string, month:string }
   .catch(error => reject(error))
 })
 
-export const updateEgreso = (egreso:number, user:any) => {
-  const userRef = firestore().collection('users').doc(user.uid)
-
-  const sumEgreso = (currentEgreso:number, newEgreso:number) => {
-    return currentEgreso + newEgreso
-  }
+export const updateEgreso = (uid:string, docId:string, values:object) => {
+  const userRef = firestore().collection(`users/${uid}/egreso`).doc(docId)
 
   return userRef.update({
-    egreso: sumEgreso(user.egreso, egreso)
+    ...values
   })
 }
 
-export const addItem = (values:object, uid:string) => {
-  const dataRef = firestore().collection(`users/${uid}/data`)
+export const deleteEgreso = (uid:string, docId:string) => {
+  const docRef = firestore().collection(`users/${uid}/egreso`).doc(docId)
 
-  return dataRef.add({
+  return docRef.delete()
+}
+
+export const addItem = (values:object, uid:string) => new Promise ((resolve, reject) => {
+  const newDocRef = firestore().collection(`users/${uid}/data`).doc()
+  const egresoId = newDocRef.id
+
+  newDocRef.set({
     ...values,
+    egresoId,
     timestamp: firebase.firestore.FieldValue.serverTimestamp()
   })
+  .then(() => resolve({ egresoId }))
+  .catch(error => reject(error))
+})
+
+export const updateItem = (uid:string, docId:string, values:object) => {
+  const docRef = firestore().collection(`users/${uid}/data`).doc(docId)
+
+  return docRef.update({
+    ...values
+  })
+
+}
+
+export const deleteItem = (uid:string, docId:string) => {
+  const docRef = firestore().collection(`users/${uid}/data`).doc(docId)
+
+  return docRef.delete()
 }

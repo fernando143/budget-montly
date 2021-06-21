@@ -11,8 +11,12 @@ import { COLOR_ELECTRON_BLUE } from '../constants'
 
 // CONTEXT
 import { AuthUserContext } from '../context/authUser'
-const version = '0.10.5'
+const version = '0.11.5'
 /*NOTAS DE LA VERSION
+0.11.5
+Actualizado la version y quitado en la pantalla de dashboard el header y el metodo onnLogout
+Fixeado funcionalidad egreso cuando se agrega, edita o elimina un item
+----------------------
 0.10.6:
 fix un problema que hacia que entre en bucle el selector y la lista se recargue indefinidamente cuando el internet està lento
 */
