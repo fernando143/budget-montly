@@ -14,6 +14,9 @@ const DataUserProvider = (props:any) => {
 
   useEffect(() => {
     if(contextAuthUser.statusUser === 'done') {
+      if(!contextAuthUser.user)
+        return
+
       const { uid } = contextAuthUser.user
       console.log('obtener data del usuario ' + uid)
 

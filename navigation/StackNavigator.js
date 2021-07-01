@@ -11,8 +11,11 @@ import { COLOR_ELECTRON_BLUE } from '../constants'
 
 // CONTEXT
 import { AuthUserContext } from '../context/authUser'
-const version = '0.11.5'
+const version = '0.11.6'
 /*NOTAS DE LA VERSION
+0.11.6
+Fix en selector que hacia que no traiga los datos cuando solo se seleccionaba el mes o el año de
+Fix en el context dataUser que intentaba ejecutarse cuando el usuario es null, es decir cuando la app no tiene ningun correo ingresado
 0.11.5
 Actualizado la version y quitado en la pantalla de dashboard el header y el metodo onnLogout
 Fixeado funcionalidad egreso cuando se agrega, edita o elimina un item

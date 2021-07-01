@@ -18,9 +18,9 @@ const Select = ({ initialDate, onUpdateDate } : SelectProps) => {
   const [internalMonth, setInternalMonth] = useState('')
 
   useEffect(() => {
-    if(internalYear.length && internalMonth.length) {
+    if(internalYear.length || internalMonth.length) {
       console.log('onUpdateDate')
-      onUpdateDate(internalYear, internalMonth)
+      onUpdateDate(internalYear.length ? internalYear : year, internalMonth.length ? internalMonth : month)
     }
 
   }, [internalYear, internalMonth])
