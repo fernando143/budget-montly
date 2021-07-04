@@ -1,9 +1,10 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 // LIBRARIES
 import { enableScreens } from 'react-native-screens';
 import codePush from "react-native-code-push"
+import RNBootSplash from "react-native-bootsplash";
 
 // COMPONENTS
 import BudgetMonthlyApp from './BudgetMonthlyApp'
@@ -33,6 +34,10 @@ const App = () => {
     updateDialog: true,
     installMode: codePush.InstallMode.IMMEDIATE
   });
+
+  useEffect(() => {
+    RNBootSplash.hide({ fade: true });
+  }, [])
 
   return (
     <AuthUserProvider>

@@ -23,6 +23,7 @@
     "moment": "^2.29.1",
     "react": "16.13.1",
     "react-native": "0.63.4",
+    "react-native-bootsplash": "^3.2.4",
     "react-native-code-push": "^7.0.0",
     "react-native-elements": "^3.1.0",
     "react-native-gesture-handler": "^1.10.3",
